@@ -20,7 +20,27 @@
     <button id="send-btn">Enviar</button>
     <div id="typing-indicator" style="display: none;">El usuario está escribiendo...</div>
 
-    <script>
+    <!-- Incluir Firebase con módulos -->
+    <script type="module">
+        // Importar las funciones necesarias desde Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+        // Configuración de Firebase
+        const firebaseConfig = {
+          apiKey: "AIzaSyAT7pYkP9FQnFcaf6VjEzwM8CxIAZFrpGU",
+          authDomain: "chatducs.firebaseapp.com",
+          projectId: "chatducs",
+          storageBucket: "chatducs.firebasestorage.app",
+          messagingSenderId: "827015501616",
+          appId: "1:827015501616:web:90ac45e90a58c15b931af5",
+          measurementId: "G-BEX56N2YFF"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
         const chatBox = document.getElementById("chat-box");
         const input = document.getElementById("message-input");
         const sendBtn = document.getElementById("send-btn");
@@ -39,11 +59,13 @@
             }
         }
 
-        // Cargar mensajes previos del chat
+        // Cargar mensajes desde Firebase
         function loadMessages() {
-            chatBox.innerHTML = ""; // Limpiar antes de recargar
-            const messages = JSON.parse(localStorage.getItem("chatMessages")) || [];
-            messages.forEach(msg => displayMessage(msg));
+            const messagesRef = ref(database, 'messages');
+            onChildAdded(messagesRef, (data) => {
+                const msg = data.val();
+                displayMessage(msg);
+            });
         }
 
         // Mostrar un mensaje en pantalla
@@ -54,15 +76,14 @@
             chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll
         }
 
-        // Enviar un mensaje
+        // Enviar un mensaje a Firebase
         function sendMessage() {
             const messageText = input.value.trim();
             if (messageText === "") return;
 
             const message = { user: userIP, text: messageText };
-            const messages = JSON.parse(localStorage.getItem("chatMessages")) || [];
-            messages.push(message);
-            localStorage.setItem("chatMessages", JSON.stringify(messages));
+            const messagesRef = ref(database, 'messages');
+            push(messagesRef, message); // Guardar el mensaje en Firebase
 
             displayMessage(message);
             input.value = "";
@@ -89,9 +110,6 @@
 
         // Cargar la IP y mensajes al inicio
         getIP().then(loadMessages);
-
-        // Sincronizar con otros usuarios que tengan la página abierta
-        window.addEventListener("storage", loadMessages);
     </script>
 </body>
 </html>
