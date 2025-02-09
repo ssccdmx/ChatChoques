@@ -11,10 +11,20 @@
         #message-input { width: 70%; padding: 8px; }
         #send-btn { padding: 8px; }
         #typing-indicator { font-size: 12px; color: gray; }
+        #alias-section { display: none; }
     </style>
 </head>
 <body>
     <h2>Chat Local</h2>
+
+    <!-- Sección para ingresar el alias -->
+    <div id="alias-section">
+        <label for="alias-input">Ingresa tu alias:</label>
+        <input type="text" id="alias-input" placeholder="Escribe un alias" autocomplete="off">
+        <button id="set-alias-btn">Establecer Alias</button>
+    </div>
+
+    <!-- Sección del chat -->
     <div id="chat-box"></div>
     <input type="text" id="message-input" placeholder="Escribe un mensaje..." autocomplete="off">
     <button id="send-btn">Enviar</button>
@@ -45,17 +55,21 @@
         const input = document.getElementById("message-input");
         const sendBtn = document.getElementById("send-btn");
         const typingIndicator = document.getElementById("typing-indicator");
+        const aliasSection = document.getElementById("alias-section");
+        const aliasInput = document.getElementById("alias-input");
+        const setAliasBtn = document.getElementById("set-alias-btn");
 
-        let userIP = "Usuario"; // Se actualizará con la IP real
+        let userAlias = ""; // Alias del usuario
 
-        // Obtener la IP del usuario
+        // Obtener la IP del usuario (si necesitas la IP también)
         async function getIP() {
             try {
                 const response = await fetch('https://api64.ipify.org?format=json');
                 const data = await response.json();
-                userIP = data.ip;
+                return data.ip;  // Aquí puedes usar la IP si la necesitas
             } catch (error) {
                 console.error("No se pudo obtener la IP", error);
+                return "Usuario desconocido";  // Alias por defecto si no se puede obtener la IP
             }
         }
 
@@ -81,7 +95,7 @@
             const messageText = input.value.trim();
             if (messageText === "") return;
 
-            const message = { user: userIP, text: messageText };
+            const message = { user: userAlias, text: messageText };
             const messagesRef = ref(database, 'messages');
             push(messagesRef, message); // Guardar el mensaje en Firebase
 
@@ -103,13 +117,25 @@
             showTypingIndicator();
         });
 
+        // Establecer el alias del usuario
+        setAliasBtn.addEventListener("click", () => {
+            const alias = aliasInput.value.trim();
+            if (alias !== "") {
+                userAlias = alias; // Establecer el alias del usuario
+                aliasSection.style.display = "none"; // Ocultar la sección del alias
+                loadMessages(); // Cargar los mensajes de Firebase
+            } else {
+                alert("Por favor, ingresa un alias válido.");
+            }
+        });
+
         sendBtn.addEventListener("click", sendMessage);
         input.addEventListener("keypress", (e) => {
             if (e.key === "Enter") sendMessage();
         });
 
-        // Cargar la IP y mensajes al inicio
-        getIP().then(loadMessages);
+        // Mostrar la sección de alias al cargar la página
+        aliasSection.style.display = "block";
     </script>
 </body>
 </html>
