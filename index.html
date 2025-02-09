@@ -10,18 +10,21 @@
                     overflow-y: auto; padding: 10px; margin: auto; background: #f9f9f9; }
         #message-input { width: 70%; padding: 8px; }
         #send-btn { padding: 8px; }
+        #typing-indicator { font-size: 12px; color: gray; }
     </style>
 </head>
 <body>
     <h2>Chat Local</h2>
     <div id="chat-box"></div>
-    <input type="text" id="message-input" placeholder="Escribe un mensaje...">
+    <input type="text" id="message-input" placeholder="Escribe un mensaje..." autocomplete="off">
     <button id="send-btn">Enviar</button>
+    <div id="typing-indicator" style="display: none;">El usuario está escribiendo...</div>
 
     <script>
         const chatBox = document.getElementById("chat-box");
         const input = document.getElementById("message-input");
         const sendBtn = document.getElementById("send-btn");
+        const typingIndicator = document.getElementById("typing-indicator");
 
         let userIP = "Usuario"; // Se actualizará con la IP real
 
@@ -63,7 +66,21 @@
 
             displayMessage(message);
             input.value = "";
+            typingIndicator.style.display = "none"; // Ocultar el indicador de escritura
         }
+
+        // Indicar que el usuario está escribiendo
+        function showTypingIndicator() {
+            typingIndicator.style.display = "block";
+            setTimeout(() => {
+                typingIndicator.style.display = "none";
+            }, 2000); // Ocultar después de 2 segundos
+        }
+
+        // Capturar el evento de escritura
+        input.addEventListener("input", () => {
+            showTypingIndicator();
+        });
 
         sendBtn.addEventListener("click", sendMessage);
         input.addEventListener("keypress", (e) => {
