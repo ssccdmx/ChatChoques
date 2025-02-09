@@ -17,10 +17,12 @@
     </div>
 
     <!-- Sección del chat -->
-    <div id="chat-box"></div>
+    <div id="chat-box">
+        <!-- Indicador de escritura, inicialmente oculto -->
+        <div id="typing-indicator" style="display: none;">El usuario está escribiendo...</div>
+    </div>
     <input type="text" id="message-input" placeholder="Escribe un mensaje..." autocomplete="off">
     <button id="send-btn">Enviar</button>
-    <div id="typing-indicator" style="display: none;">El usuario está escribiendo...</div>
 
     <!-- Incluir Firebase con módulos -->
     <script type="module">
@@ -53,6 +55,16 @@
 
         let userAlias = ""; // Alias del usuario
 
+        // Generar un color único basado en el alias
+        function generateColor(alias) {
+            const colors = ["#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#FF9933", "#33FFFF"];
+            let sum = 0;
+            for (let i = 0; i < alias.length; i++) {
+                sum += alias.charCodeAt(i);
+            }
+            return colors[sum % colors.length]; // Elige un color basado en el valor hash del alias
+        }
+
         // Obtener la IP del usuario (si necesitas la IP también)
         async function getIP() {
             try {
@@ -74,12 +86,14 @@
             });
         }
 
-        // Mostrar un mensaje en pantalla
+        // Mostrar un mensaje en pantalla con el color de usuario
         function displayMessage(msg) {
             const messageElement = document.createElement("div");
-            messageElement.innerHTML = `<strong>${msg.user}:</strong> ${msg.text}`;
+            messageElement.innerHTML = `<strong style="color: ${msg.color}">${msg.user}:</strong> ${msg.text}`;
             chatBox.appendChild(messageElement);
-            chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll
+
+            // Desplazar al último mensaje
+            chatBox.scrollTop = chatBox.scrollHeight; // Siempre hacer scroll al final
         }
 
         // Enviar un mensaje a Firebase
@@ -87,18 +101,20 @@
             const messageText = input.value.trim();
             if (messageText === "") return;
 
-            const message = { user: userAlias, text: messageText };
+            const message = { user: userAlias, text: messageText, color: generateColor(userAlias) };
             const messagesRef = ref(database, 'messages');
             push(messagesRef, message); // Guardar el mensaje en Firebase
 
-            displayMessage(message);
             input.value = "";
             typingIndicator.style.display = "none"; // Ocultar el indicador de escritura
         }
 
         // Indicar que el usuario está escribiendo
         function showTypingIndicator() {
+            // Mostrar el indicador de escritura dentro del chat-box
             typingIndicator.style.display = "block";
+
+            // Hacer que el indicador desaparezca después de 2 segundos
             setTimeout(() => {
                 typingIndicator.style.display = "none";
             }, 2000); // Ocultar después de 2 segundos
@@ -116,6 +132,8 @@
                 userAlias = alias; // Establecer el alias del usuario
                 aliasSection.style.display = "none"; // Ocultar la sección del alias
                 loadMessages(); // Cargar los mensajes de Firebase
+                // Desplazar al último mensaje automáticamente después de cargar
+                chatBox.scrollTop = chatBox.scrollHeight;
             } else {
                 alert("Por favor, ingresa un alias válido.");
             }
