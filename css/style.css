@@ -1,8 +1,33 @@
+:root {
+	--primario: #013E6A;
+    --secundario: #1d6389;
+    --terciario: #082C5D;
+    --button:#2196F3;
+    --text: #313436;
+    --white:#FFF;
+    --black:#000;
+}
+
+@import url("https://fonts.googleapis.com/css2?family=Bangers&display=swap");
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Open Sans", sans-serif;
+  color: var(--text);
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select:none;
+  user-select:none;
+  
+  }
+
+
+
 /* Estilo global para el cuerpo */
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f9;
-    color: #333;
+    color: var(--text);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -10,12 +35,17 @@ body {
     height: 100vh;
     margin: 0;
     padding: 0;
+    
 }
 
 /* Encabezado */
 h2 {
-    color: #2c3e50;
-    margin-bottom: 20px;
+    color: var(--primario);
+    margin-bottom: 24px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select:none;
+    user-select:none;
 }
 
 /* Sección para ingresar el alias */
@@ -24,6 +54,13 @@ h2 {
     flex-direction: column;
     align-items: center;
     margin-bottom: 20px;
+}
+
+label{
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select:none;
+    user-select:none;
 }
 
 #alias-input {
@@ -37,12 +74,12 @@ h2 {
 }
 
 #alias-input:focus {
-    border-color: #3498db;
+    border-color: var(--secundario);
 }
 
 #set-alias-btn {
     padding: 10px 20px;
-    background-color: #3498db;
+    background-color: var(--button);
     color: white;
     border: none;
     border-radius: 4px;
@@ -51,7 +88,7 @@ h2 {
 }
 
 #set-alias-btn:hover {
-    background-color: #2980b9;
+    background-color: var(--secundario);
 }
 
 /* Estilo para el chat */
@@ -69,6 +106,10 @@ h2 {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     font-size: 14px;
     line-height: 1.6;
+    -webkit-user-select: auto;
+    -moz-user-select: none;
+    -ms-user-select:none;
+    user-select: all;
 }
 
 #chat-box div {
@@ -79,7 +120,7 @@ h2 {
 }
 
 #chat-box div strong {
-    color: #3498db;
+    color: var(--button);
 }
 
 /* Estilo para el campo de entrada de mensajes */
@@ -91,17 +132,18 @@ h2 {
     border-radius: 4px;
     outline: none;
     margin-top: 10px;
+    
 }
 
 #message-input:focus {
-    border-color: #3498db;
+    border-color: var(--button);
 }
 
 /* Estilo para el botón de enviar */
 #send-btn {
     padding: 10px 20px;
     margin-top: 10px;
-    background-color: #2ecc71;
+    background-color: var(--button);
     color: white;
     border: none;
     border-radius: 4px;
@@ -111,7 +153,7 @@ h2 {
 }
 
 #send-btn:hover {
-    background-color: #27ae60;
+    background-color: var(--secundario);
 }
 
 /* Estilo para el indicador de escritura */
@@ -128,11 +170,12 @@ input[type="text"] {
     font-size: 14px;
     border: 1px solid #ccc;
     border-radius: 4px;
+
 }
 
 /* Diseño general de la página */
 input[type="text"]:focus {
-    border-color: #3498db;
+    border-color: var(--button);
 }
 
 button {
@@ -145,4 +188,64 @@ button {
 
 button:hover {
     opacity: 0.9;
+}
+
+
+
+
+#announcement-bar {
+    background-color: var(--primario); /* Color de fondo */
+    color: var(--white); /* Color del texto */
+    text-align: center;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    position: fixed; /* Fija la cinta en la parte superior */
+    white-space: nowrap;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000; /* Asegura que esté por encima de otros elementos */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Sombra para darle profundidad */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select:none;
+    user-select:none;
+}
+
+/* Ajustar el contenido principal para que no se solape con la cinta */
+body {
+    padding-top: 35px; /* Espacio para la cinta de anuncios */
+}
+
+@keyframes scrollText {
+    from { transform: translateX(100%); }
+    to { transform: translateX(-100%); }
+}
+.marquee {
+    display: inline-block;
+    animation: scrollText 22s linear infinite;
+}
+
+
+.input-container {
+    display: flex;
+    align-items: center;
+    width: 71%;
+    margin-top: 5px;
+}
+#message-input {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+
+.date-separator {
+    text-align: center;
+    font-size: 1.2em;
+    margin: 10px 0;
+    color: var(--button);
+    font-weight: bold;
+    background-color: var(--primario);
+    border-bottom: 2px solid #ddd;
 }
