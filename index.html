@@ -5,43 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Local DUCS</title>
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://kit.fontawesome.com/4a84d99523.js" crossorigin="anonymous"></script>
 </head>
 <body>
+    <div id="announcement-bar"><span class="marquee"></span></div>
     <h2>Chat DUCS</h2>
-
-    <!-- Sección para ingresar el alias -->
     <div id="alias-section">
         <label for="alias-input">Ingresa tu alias:</label>
         <input type="text" id="alias-input" placeholder="Escribe un alias" autocomplete="off">
         <button id="set-alias-btn">Establecer Alias</button>
     </div>
-
-    <!-- Sección del chat -->
-    <div id="chat-box">
-        <!-- Indicador de escritura, inicialmente oculto -->
-        <div id="typing-indicator" style="display: none;">El usuario está escribiendo...</div>
+    <div id="chat-box"></div>
+    <div id="typing-indicator" style="display: none;">...</div>
+    <div class="input-container">
+        <input type="text" id="message-input" placeholder="Escribe un mensaje..." autocomplete="off">
+        <button id="send-btn"><i class="fa-regular fa-paper-plane"></i></button>
     </div>
-    <input type="text" id="message-input" placeholder="Escribe un mensaje..." autocomplete="off">
-    <button id="send-btn">Enviar</button>
-
-    <!-- Incluir Firebase con módulos -->
+    
     <script type="module">
-        // Importar las funciones necesarias desde Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
         import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-        // Configuración de Firebase
         const firebaseConfig = {
-          apiKey: "AIzaSyAT7pYkP9FQnFcaf6VjEzwM8CxIAZFrpGU",
-          authDomain: "chatducs.firebaseapp.com",
-          projectId: "chatducs",
-          storageBucket: "chatducs.firebasestorage.app",
-          messagingSenderId: "827015501616",
-          appId: "1:827015501616:web:90ac45e90a58c15b931af5",
-          measurementId: "G-BEX56N2YFF"
+            apiKey: "AIzaSyAT7pYkP9FQnFcaf6VjEzwM8CxIAZFrpGU",
+            authDomain: "chatducs.firebaseapp.com",
+            projectId: "chatducs",
+            storageBucket: "chatducs.firebasestorage.app",
+            messagingSenderId: "827015501616",
+            appId: "1:827015501616:web:90ac45e90a58c15b931af5",
+            measurementId: "G-BEX56N2YFF"
         };
 
-        // Inicializar Firebase
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
 
@@ -52,87 +46,102 @@
         const aliasSection = document.getElementById("alias-section");
         const aliasInput = document.getElementById("alias-input");
         const setAliasBtn = document.getElementById("set-alias-btn");
+        const announcementBar = document.querySelector(".marquee");
 
-        let userAlias = ""; // Alias del usuario
+        let userAlias = "";
+        let lastDisplayedDate = "";  // Variable para almacenar la fecha del último separador mostrado
 
-        // Generar un color único basado en el alias
+        // Función para obtener la fecha en formato 'DD/MM/YYYY'
+        function getFormattedDate() {
+            const now = new Date();
+            const day = now.getDate().toString().padStart(2, '0');
+            const month = (now.getMonth() + 1).toString().padStart(2, '0');
+            const year = now.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        // Función para mostrar el separador de fecha
+        function displayDateSeparator(date) {
+            const separatorElement = document.createElement("div");
+            separatorElement.className = "date-separator";
+            separatorElement.textContent = `Fecha: ${date}`;
+            chatBox.appendChild(separatorElement);
+        }
+
+        // Función para verificar si ya se mostró el separador hoy
+        function checkAndDisplayDate() {
+            const currentDate = getFormattedDate();
+            if (currentDate !== lastDisplayedDate) {
+                displayDateSeparator(currentDate);  // Mostrar el separador de fecha
+                lastDisplayedDate = currentDate;    // Actualizar la fecha mostrada
+            }
+        }
+
         function generateColor(alias) {
             const colors = ["#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#FF9933", "#33FFFF"];
             let sum = 0;
             for (let i = 0; i < alias.length; i++) {
                 sum += alias.charCodeAt(i);
             }
-            return colors[sum % colors.length]; // Elige un color basado en el valor hash del alias
+            return colors[sum % colors.length];
         }
 
-        // Obtener la IP del usuario (si necesitas la IP también)
-        async function getIP() {
-            try {
-                const response = await fetch('https://api64.ipify.org?format=json');
-                const data = await response.json();
-                return data.ip;  // Aquí puedes usar la IP si la necesitas
-            } catch (error) {
-                console.error("No se pudo obtener la IP", error);
-                return "Usuario desconocido";  // Alias por defecto si no se puede obtener la IP
-            }
-        }
-
-        // Cargar mensajes desde Firebase
         function loadMessages() {
             const messagesRef = ref(database, 'messages');
             onChildAdded(messagesRef, (data) => {
-                const msg = data.val();
-                displayMessage(msg);
+                checkAndDisplayDate();  // Comprobar si debe mostrarse un separador de fecha
+                displayMessage(data.val());
             });
         }
 
-        // Mostrar un mensaje en pantalla con el color de usuario
         function displayMessage(msg) {
             const messageElement = document.createElement("div");
-            messageElement.innerHTML = `<strong style="color: ${msg.color}">${msg.user}:</strong> ${msg.text}`;
+            messageElement.innerHTML = `<strong style="color: ${msg.color}">${msg.user}:</strong> ${msg.text} <span style="font-size: 9px; color: gray;">(${msg.time})</span>`;
             chatBox.appendChild(messageElement);
-
-            // Desplazar al último mensaje
-            chatBox.scrollTop = chatBox.scrollHeight; // Siempre hacer scroll al final
+            chatBox.appendChild(typingIndicator);
+            chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        // Enviar un mensaje a Firebase
         function sendMessage() {
             const messageText = input.value.trim();
             if (messageText === "") return;
 
-            const message = { user: userAlias, text: messageText, color: generateColor(userAlias) };
-            const messagesRef = ref(database, 'messages');
-            push(messagesRef, message); // Guardar el mensaje en Firebase
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const time = `${hours}:${minutes}`;
+
+            const message = { user: userAlias, text: messageText, color: generateColor(userAlias), time: time };
+            push(ref(database, 'messages'), message);
+
+            checkAndDisplayDate();  // Verifica y muestra el separador si es un nuevo día
 
             input.value = "";
-            typingIndicator.style.display = "none"; // Ocultar el indicador de escritura
+            typingIndicator.style.display = "none";
         }
 
-        // Indicar que el usuario está escribiendo
         function showTypingIndicator() {
-            // Mostrar el indicador de escritura dentro del chat-box
             typingIndicator.style.display = "block";
-
-            // Hacer que el indicador desaparezca después de 2 segundos
+            chatBox.appendChild(typingIndicator);
             setTimeout(() => {
                 typingIndicator.style.display = "none";
-            }, 2000); // Ocultar después de 2 segundos
+            }, 2000);
         }
 
-        // Capturar el evento de escritura
-        input.addEventListener("input", () => {
-            showTypingIndicator();
-        });
+        function updateAnnouncement() {
+            const today = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            const formattedDate = today.toLocaleDateString('es-ES', options);
+            announcementBar.textContent = `Bienvenid@, hoy es ${formattedDate}                                               - Anuncios -`;
+        }
 
-        // Establecer el alias del usuario
+        input.addEventListener("input", showTypingIndicator);
         setAliasBtn.addEventListener("click", () => {
             const alias = aliasInput.value.trim();
             if (alias !== "") {
-                userAlias = alias; // Establecer el alias del usuario
-                aliasSection.style.display = "none"; // Ocultar la sección del alias
-                loadMessages(); // Cargar los mensajes de Firebase
-                // Desplazar al último mensaje automáticamente después de cargar
+                userAlias = alias;
+                aliasSection.style.display = "none";
+                loadMessages();
                 chatBox.scrollTop = chatBox.scrollHeight;
             } else {
                 alert("Por favor, ingresa un alias válido.");
@@ -144,8 +153,9 @@
             if (e.key === "Enter") sendMessage();
         });
 
-        // Mostrar la sección de alias al cargar la página
         aliasSection.style.display = "block";
+        updateAnnouncement();
+        window.onload = checkAndDisplayDate;  // Verificar al cargar la página
     </script>
 </body>
 </html>
