@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Local DUCS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://kit.fontawesome.com/4a84d99523.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div id="announcement-bar"><span class="marquee"></span></div>
+    <h2>Chat DUCS</h2>
+    <div id="alias-section">
+        <label for="alias-input">Para comenzar ingresa un alias:</label>
+        <input type="text" id="alias-input" placeholder="Escribe un alias" autocomplete="off">
+        <button id="set-alias-btn">Establecer Alias</button>
+    </div>
+    <div id="chat-box"></div>
+    <div id="typing-indicator" style="display: none;">...</div>
+    <div class="input-container">
+        <input type="text" id="message-input" placeholder="Escribe un mensaje..." autocomplete="off">
+        <button id="send-btn"><i class="fa-regular fa-paper-plane"></i></button>
+    </div>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAT7pYkP9FQnFcaf6VjEzwM8CxIAZFrpGU",
+            authDomain: "chatducs.firebaseapp.com",
+            projectId: "chatducs",
+            storageBucket: "chatducs.firebasestorage.app",
+            messagingSenderId: "827015501616",
+            appId: "1:827015501616:web:90ac45e90a58c15b931af5",
+            measurementId: "G-BEX56N2YFF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        const chatBox = document.getElementById("chat-box");
+        const input = document.getElementById("message-input");
+        const sendBtn = document.getElementById("send-btn");
+        const typingIndicator = document.getElementById("typing-indicator");
+        const aliasSection = document.getElementById("alias-section");
+        const aliasInput = document.getElementById("alias-input");
+        const setAliasBtn = document.getElementById("set-alias-btn");
+        const announcementBar = document.querySelector(".marquee");
+
+        let userAlias = "";
+        let lastDisplayedDate = "";  // Variable para almacenar la fecha del último separador mostrado
+
+        // Función para obtener la fecha en formato 'DD/MM/YYYY'
+        function getFormattedDate() {
+            const now = new Date();
+            const day = now.getDate().toString().padStart(2, '0');
+            const month = (now.getMonth() + 1).toString().padStart(2, '0');
+            const year = now.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        // Función para mostrar el separador de fecha
+        function displayDateSeparator(date) {
+            const separatorElement = document.createElement("div");
+            separatorElement.className = "date-separator";
+            separatorElement.textContent = `Fecha: ${date}`;
+            chatBox.appendChild(separatorElement);
+        }
+
+        // Función para verificar si ya se mostró el separador hoy
+        function checkAndDisplayDate() {
+            const currentDate = getFormattedDate();
+            if (currentDate !== lastDisplayedDate) {
+                displayDateSeparator(currentDate);  // Mostrar el separador de fecha
+                lastDisplayedDate = currentDate;    // Actualizar la fecha mostrada
+            }
+        }
+
+        function generateColor(alias) {
+            const colors = ["#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#FF9933", "#33FFFF"];
+            let sum = 0;
+            for (let i = 0; i < alias.length; i++) {
+                sum += alias.charCodeAt(i);
+            }
+            return colors[sum % colors.length];
+        }
+
+        function loadMessages() {
+            const messagesRef = ref(database, 'messages');
+            onChildAdded(messagesRef, (data) => {
+                checkAndDisplayDate();  // Comprobar si debe mostrarse un separador de fecha
+                displayMessage(data.val());
+            });
+        }
+
+        function displayMessage(msg) {
+            const messageElement = document.createElement("div");
+            messageElement.innerHTML = `<strong style="color: ${msg.color}">${msg.user}:</strong> ${msg.text} <span style="font-size: 9px; color: gray;">(${msg.time})</span>`;
+            chatBox.appendChild(messageElement);
+            chatBox.appendChild(typingIndicator);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function sendMessage() {
+            const messageText = input.value.trim();
+            if (messageText === "") return;
+
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const time = `${hours}:${minutes}`;
+
+            const message = { user: userAlias, text: messageText, color: generateColor(userAlias), time: time };
+            push(ref(database, 'messages'), message);
+
+            checkAndDisplayDate();  // Verifica y muestra el separador si es un nuevo día
+
+            input.value = "";
+            typingIndicator.style.display = "none";
+        }
+
+        function showTypingIndicator() {
+            typingIndicator.style.display = "block";
+            chatBox.appendChild(typingIndicator);
+            setTimeout(() => {
+                typingIndicator.style.display = "none";
+            }, 2000);
+        }
+
+        function updateAnnouncement() {
+            const today = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            const formattedDate = today.toLocaleDateString('es-ES', options);
+            announcementBar.textContent = `Bienvenid@, hoy es ${formattedDate}                                               - Anuncios -`;
+        }
+
+        input.addEventListener("input", showTypingIndicator);
+        setAliasBtn.addEventListener("click", () => {
+            const alias = aliasInput.value.trim();
+            if (alias !== "") {
+                userAlias = alias;
+                aliasSection.style.display = "none";
+                loadMessages();
+                chatBox.scrollTop = chatBox.scrollHeight;
+            } else {
+                alert("Por favor, ingresa un alias válido.");
+            }
+        });
+
+        sendBtn.addEventListener("click", sendMessage);
+        input.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") sendMessage();
+        });
+
+        aliasSection.style.display = "block";
+        updateAnnouncement();
+        window.onload = checkAndDisplayDate;  // Verificar al cargar la página
+    </script>
+</body>
+</html>
