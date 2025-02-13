@@ -109,7 +109,6 @@ label{
     -webkit-user-select: auto;
     -moz-user-select: none;
     -ms-user-select:none;
-    user-select: text;
 }
 
 #chat-box div {
