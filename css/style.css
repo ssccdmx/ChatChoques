@@ -41,7 +41,7 @@ body {
 /* Encabezado */
 h2 {
     color: var(--primario);
-    margin-bottom: 24px;
+    margin-bottom: 18px;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select:none;
