@@ -33,7 +33,7 @@
             storageBucket: "chatchoques.firebasestorage.app",
             messagingSenderId: "8137822193",
             appId: "1:8137822193:web:83dea97537f63900ccfe50"
-            };
+        };
 
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
@@ -156,6 +156,18 @@
         updateAnnouncement();
         window.onload = checkAndDisplayDate;  // Verificar al cargar la página
     </script>
+
+    <footer>
+        <br><small>
+        ChatChoques v1.0 | UCH |
+        <a href="https://www.ssc.cdmx.gob.mx/" Target="blank">
+            Secretaría de Seguridad Ciudadana de la Ciudad de México     
+        </a>|
+        <a href="https://ucs.ssc.cdmx.gob.mx/" Target="blank">
+            Unidad de Contacto del Secretario
+        </a>
+        </small>
+    </footer>
+
 </body>
 </html>
-
