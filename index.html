@@ -9,7 +9,7 @@
 </head>
 <body>
     <div id="announcement-bar"><span class="marquee"></span></div>
-    <h2>Chat DUCS</h2>
+    <h2>Chat DUCS</h2><br>
     <div id="alias-section">
         <label for="alias-input">Para comenzar ingresa un alias:</label>
         <input type="text" id="alias-input" placeholder="Escribe un alias" autocomplete="off">
@@ -27,13 +27,15 @@
         import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyDxVtQ9Q3wws0IYM4V3du10JzUi7FMJvf8",
-            authDomain: "chatchoques.firebaseapp.com",
-            projectId: "chatchoques",
-            storageBucket: "chatchoques.firebasestorage.app",
-            messagingSenderId: "8137822193",
-            appId: "1:8137822193:web:83dea97537f63900ccfe50"
+            apiKey: "AIzaSyDV7gR3LrGHojgmokeUxp32jcJd41sbYqg",
+            authDomain: "baseradio-b741d.firebaseapp.com",
+            projectId: "baseradio-b741d",
+            storageBucket: "baseradio-b741d.firebasestorage.app",
+            messagingSenderId: "953565284664",
+            appId: "1:953565284664:web:6b24a6eb4fa5d4e59e59cd",
+            measurementId: "G-BTJCBW6C52"
         };
+
 
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
@@ -63,7 +65,7 @@
         function displayDateSeparator(date) {
             const separatorElement = document.createElement("div");
             separatorElement.className = "date-separator";
-            separatorElement.textContent = `Fecha: ${date}`;
+            separatorElement.textContent = `Registro digital de canalizaciones de la base de radio`;
             chatBox.appendChild(separatorElement);
         }
 
@@ -95,7 +97,11 @@
 
         function displayMessage(msg) {
             const messageElement = document.createElement("div");
-            messageElement.innerHTML = `<strong style="color: ${msg.color}">${msg.user}:</strong> ${msg.text} <span style="font-size: 9px; color: gray;">(${msg.time})</span>`;
+            const color = msg.color || generateColor(msg.user); // Fallback si no hay color
+
+            console.log("Mostrando mensaje de:", msg.user, "Color:", color); // Debug
+
+            messageElement.innerHTML = `<strong style="color: ${msg.color}">${msg.user}:</strong> ${msg.text} <span style="font-size: 9px; color: gray;">(${msg.time})</span> <span style="font-size: 7px; color: gray;"> ${getFormattedDate()}</span>`;
             chatBox.appendChild(messageElement);
             chatBox.appendChild(typingIndicator);
             chatBox.scrollTop = chatBox.scrollHeight;
@@ -110,7 +116,7 @@
             const minutes = now.getMinutes().toString().padStart(2, '0');
             const time = `${hours}:${minutes}`;
 
-            const message = { user: userAlias, text: messageText, color: generateColor(userAlias), time: time };
+            const message = { user: userAlias, text: messageText, color: generateColor(userAlias), time: time, date: getFormattedDate() };
             push(ref(database, 'messages'), message);
 
             checkAndDisplayDate();  // Verifica y muestra el separador si es un nuevo día
@@ -157,9 +163,13 @@
         window.onload = checkAndDisplayDate;  // Verificar al cargar la página
     </script>
 
+<br>
+<br>
+
+
     <footer>
         <br><small>
-        ChatChoques v1.0 | UCH |
+        chatDUCS v1.0 | UCH |
         <a href="https://www.ssc.cdmx.gob.mx/" Target="blank">
             Secretaría de Seguridad Ciudadana de la Ciudad de México     
         </a>|
