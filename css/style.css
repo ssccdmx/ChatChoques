@@ -41,6 +41,7 @@ body {
 /* Encabezado */
 h2 {
     color: var(--primario);
+    font-size: 25px;
     margin-bottom: 5px;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -93,8 +94,8 @@ label{
 
 /* Estilo para el chat */
 #chat-box {
-    width: 70%;
-    max-width: 70%;
+    width: 80%;
+    max-width: 80%;
     height: 60%;
     border: 1px solid #ddd;
     overflow-y: auto;
@@ -104,11 +105,8 @@ label{
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    font-size: 14px;
+    font-size: 16px;
     line-height: 1.6;
-    -webkit-user-select: auto;
-    -moz-user-select: none;
-    -ms-user-select:none;
 }
 
 #chat-box div {
@@ -221,6 +219,7 @@ body {
     from { transform: translateX(100%); }
     to { transform: translateX(-100%); }
 }
+
 .marquee {
     display: inline-block;
     animation: scrollText 22s linear infinite;
@@ -248,3 +247,5 @@ body {
     background-color: var(--primario);
     border-bottom: 2px solid #ddd;
 }
+
+
