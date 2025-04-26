@@ -3,7 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="https://kit.fontawesome.com/4a84d99523.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/chatbox copy 2.js" defer></script>
     <title>Chat Local DUCS</title>
+    <link rel="icon" href="img/ico/UCS.png">
     <link rel="stylesheet" href="css/style.css">
     <script src="https://kit.fontawesome.com/4a84d99523.js" crossorigin="anonymous"></script>
 </head>
@@ -25,7 +31,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
         import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
-
+    
         const firebaseConfig = {
             apiKey: "AIzaSyDV7gR3LrGHojgmokeUxp32jcJd41sbYqg",
             authDomain: "baseradio-b741d.firebaseapp.com",
@@ -35,11 +41,10 @@
             appId: "1:953565284664:web:6b24a6eb4fa5d4e59e59cd",
             measurementId: "G-BTJCBW6C52"
         };
-
-
+    
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
-
+    
         const chatBox = document.getElementById("chat-box");
         const input = document.getElementById("message-input");
         const sendBtn = document.getElementById("send-btn");
@@ -48,11 +53,10 @@
         const aliasInput = document.getElementById("alias-input");
         const setAliasBtn = document.getElementById("set-alias-btn");
         const announcementBar = document.querySelector(".marquee");
-
+    
         let userAlias = "";
-        let lastDisplayedDate = "";  // Variable para almacenar la fecha del último separador mostrado
-
-        // Función para obtener la fecha en formato 'DD/MM/YYYY'
+        let lastDisplayedDate = "";
+    
         function getFormattedDate() {
             const now = new Date();
             const day = now.getDate().toString().padStart(2, '0');
@@ -60,71 +64,83 @@
             const year = now.getFullYear();
             return `${day}/${month}/${year}`;
         }
-
-        // Función para mostrar el separador de fecha
+    
         function displayDateSeparator(date) {
             const separatorElement = document.createElement("div");
             separatorElement.className = "date-separator";
-            separatorElement.textContent = `Registro digital de canalizaciones de la base de radio`;
+            separatorElement.textContent = `Registro digital de canalizaciones Base IRIS`;
             chatBox.appendChild(separatorElement);
         }
-
-        // Función para verificar si ya se mostró el separador hoy
+    
         function checkAndDisplayDate() {
             const currentDate = getFormattedDate();
             if (currentDate !== lastDisplayedDate) {
-                displayDateSeparator(currentDate);  // Mostrar el separador de fecha
-                lastDisplayedDate = currentDate;    // Actualizar la fecha mostrada
+                displayDateSeparator(currentDate);
+                lastDisplayedDate = currentDate;
             }
         }
-
+    
         function generateColor(alias) {
-            const colors = ["#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#FF9933", "#33FFFF"];
+            const colors = [
+                "#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#FF9933", "#33FFFF",
+                "#8E44AD", "#1ABC9C", "#F1C40F", "#E67E22", "#2ECC71", "#3498DB",
+                "#E74C3C", "#9B59B6", "#16A085", "#F39C12", "#D35400", "#27AE60"
+            ];
             let sum = 0;
             for (let i = 0; i < alias.length; i++) {
                 sum += alias.charCodeAt(i);
             }
             return colors[sum % colors.length];
         }
-
+    
         function loadMessages() {
             const messagesRef = ref(database, 'messages');
             onChildAdded(messagesRef, (data) => {
-                checkAndDisplayDate();  // Comprobar si debe mostrarse un separador de fecha
+                checkAndDisplayDate();
                 displayMessage(data.val());
             });
         }
-
+    
         function displayMessage(msg) {
             const messageElement = document.createElement("div");
-            const color = msg.color || generateColor(msg.user); // Fallback si no hay color
-
-            console.log("Mostrando mensaje de:", msg.user, "Color:", color); // Debug
-
-            messageElement.innerHTML = `<strong style="color: ${msg.color}">${msg.user}:</strong> ${msg.text} <span style="font-size: 9px; color: gray;">(${msg.time})</span> <span style="font-size: 7px; color: gray;"> ${getFormattedDate()}</span>`;
+            const color = msg.color || generateColor(msg.user);
+    
+            messageElement.innerHTML = `
+                <strong style="color: ${color}">${msg.user}:</strong>
+                ${msg.text}
+                <span style="font-size: 9px; color: gray;">(${msg.time})</span>
+                <span style="font-size: 7px; color: gray;"> ${msg.date}</span>
+            `;
+    
             chatBox.appendChild(messageElement);
             chatBox.appendChild(typingIndicator);
             chatBox.scrollTop = chatBox.scrollHeight;
         }
-
+    
         function sendMessage() {
             const messageText = input.value.trim();
             if (messageText === "") return;
-
+    
             const now = new Date();
             const hours = now.getHours().toString().padStart(2, '0');
             const minutes = now.getMinutes().toString().padStart(2, '0');
             const time = `${hours}:${minutes}`;
-
-            const message = { user: userAlias, text: messageText, color: generateColor(userAlias), time: time, date: getFormattedDate() };
+    
+            const message = {
+                user: userAlias,
+                text: messageText,
+                color: generateColor(userAlias),
+                time: time,
+                date: getFormattedDate()
+            };
+    
             push(ref(database, 'messages'), message);
-
-            checkAndDisplayDate();  // Verifica y muestra el separador si es un nuevo día
-
+    
+            checkAndDisplayDate();
             input.value = "";
             typingIndicator.style.display = "none";
         }
-
+    
         function showTypingIndicator() {
             typingIndicator.style.display = "block";
             chatBox.appendChild(typingIndicator);
@@ -132,14 +148,14 @@
                 typingIndicator.style.display = "none";
             }, 2000);
         }
-
+    
         function updateAnnouncement() {
             const today = new Date();
             const options = { year: 'numeric', month: 'long', day: 'numeric' };
             const formattedDate = today.toLocaleDateString('es-ES', options);
             announcementBar.textContent = `Bienvenid@, hoy es ${formattedDate}                                               - Anuncios -`;
         }
-
+    
         input.addEventListener("input", showTypingIndicator);
         setAliasBtn.addEventListener("click", () => {
             const alias = aliasInput.value.trim();
@@ -152,15 +168,15 @@
                 alert("Por favor, ingresa un alias válido.");
             }
         });
-
+    
         sendBtn.addEventListener("click", sendMessage);
         input.addEventListener("keypress", (e) => {
             if (e.key === "Enter") sendMessage();
         });
-
+    
         aliasSection.style.display = "block";
         updateAnnouncement();
-        window.onload = checkAndDisplayDate;  // Verificar al cargar la página
+        window.onload = checkAndDisplayDate;
     </script>
 
 <br>
@@ -178,6 +194,10 @@
         </a>
         </small>
     </footer>
+
+   
+
+</body>
 
 </body>
 </html>
