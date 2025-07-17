@@ -29,19 +29,35 @@
     </div>
     
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
-    
-        const firebaseConfig = {
-            apiKey: "AIzaSyDV7gR3LrGHojgmokeUxp32jcJd41sbYqg",
-            authDomain: "baseradio-b741d.firebaseapp.com",
-            projectId: "baseradio-b741d",
-            storageBucket: "baseradio-b741d.firebasestorage.app",
-            messagingSenderId: "953565284664",
-            appId: "1:953565284664:web:6b24a6eb4fa5d4e59e59cd",
-            measurementId: "G-BTJCBW6C52"
-        };
-    
+        // Import the functions you need from the SDKs you need
+            import { initializeApp } from "firebase/app";
+            import { getAnalytics } from "firebase/analytics";
+            // TODO: Add SDKs for Firebase products that you want to use
+            // https://firebase.google.com/docs/web/setup#available-libraries
+            
+            // Your web app's Firebase configuration
+            // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+            const firebaseConfig = {
+              apiKey: "AIzaSyDO7PlcyCkExWx33vouL-Ed3eSTOHBLuwY",
+              authDomain: "baseradio-c609a.firebaseapp.com",
+              projectId: "baseradio-c609a",
+              storageBucket: "baseradio-c609a.firebasestorage.app",
+              messagingSenderId: "290864032457",
+              appId: "1:290864032457:web:5819688acd86a4b0693b18",
+              measurementId: "G-YQL4GZ8EQW"
+            };
+
+
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
+
+
+
+
+        
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
     
